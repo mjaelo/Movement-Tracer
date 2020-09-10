@@ -241,10 +241,10 @@ if __name__ == "__main__":
     param = Parameters()
 
     if (input("czy chcesz poznac intrukcje? 1=tak") == "1"):
-        input("OPIS: Program służy do rysowania ruchem przez kamere. program szuka punktow najbardziej zblizonych do pozadanego koloru i rysuje na nich porzadany kolor. ")
-        input("Zaleca sie wybranie kontrolera o konktetnym kolorze, np. biale swiatlo z komorki przy szukaniu bialego koloru")
-        input("Przy ustawianiu kolorow pamietaj, ze przyjmuja one wartosci 0-255 w skalach Blue Green Red")
-        input("SPACE = pauza, ustawianie parametrow na konsoli")
+        input("OPIS: Program służy do rysowania ruchem przez kamere. Program szuka punktow najbardziej zblizonych do pozadanego koloru i rysuje na nich wybranym kolorem. ")
+        input("Zaleca sie wybranie kontrolera o konkretnym kolorze, np. biale swiatlo z komorki przy szukaniu bialego koloru")
+        input("Przy ustawianiu kolorow pamietaj, ze przyjmuja one wartosci 0-255 w skalach Blue Green Red dla kazdego koloru")
+        input("SPACE = uruchomienie pauzy, na ustawianie wartosci parametrow na konsoli")
         input("WSAD = alternatywne poruszanie sie po palecie")
         input("Po tej wiadomosci bedzie mozna ustawic pierwotne parametry\n")
 
@@ -286,4 +286,3 @@ if __name__ == "__main__":
             print("wrong input")
 
     searchcam(param)
-    # searchcam([0, 0, 255], 20)

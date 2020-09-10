@@ -1,14 +1,4 @@
-import sys
-
 import cv2
-import threading
-
-# uwagi:
-# interfejs graficzny powinien miec: pola do zmiany wartosci parametrow, guzik on/off gumki, guzik wyjscie
-
-# mogę zmienic funkcje szukania koloru, by  miała tablice rozmiaru obrazka i kolorowanie by zapelnialo pola tego obrazka, oszczedzilo by to pamiec,
-# ale i tak usuwam najstarsze pola, a tak, to bym dal jakis klor nieuzywany, by oznaczyc pola puste. Wtedy tez nie byloby usuwania starych pol
-
 
 class Parameters:
     value = [255, 255, 255]  # szukany kolor
@@ -16,8 +6,8 @@ class Parameters:
     search_area = [50, 50]
     draw_color = [0, 0, 255]  # kolor rysowania
     max_table_size = 500  # dlugosc ile pikseli naraz bedzie pokolorowanych
-    tolerance=6000
-    flipped=True
+    tolerance = 6000
+    flipped = True
 
 
 # dziala, prostrze, ale muli, bo patrzy na caly obrazek
@@ -41,7 +31,7 @@ def findclosestpix_all(value, img):
     return min_xy
 
 
-# srednio dziala, jest szybszy, bo patrzy tylko na czesc obrazka
+# bardziej zawodny, ale jest szybszy, bo patrzy tylko na czesc obrazka
 # value= poszukiwany kolor, img= obraz, center_xy= xy ostatniego matchu, area = ilosc przeszukiwanych pixeli wokol pix
 def findclosestpix_part(value, img, center_xy, area):
     min_avg = 100000  # min roznica wartosci koloru do poszukiwanego
@@ -81,11 +71,12 @@ def findclosestpix_part(value, img, center_xy, area):
 
                 if (avg < min_avg):
                     min_avg = avg
-                    min_xy = [pozX, pozY]
+                    min_xy = [ pozY,pozX]
     except:
         print("[" + str(pozX) + "," + str(pozY) + "] searching error ")
         min_xy = findclosestpix_all(value, img)
 
+    #gdy zbyt male podobienstwo, zwraca poprzedni punkt i kursor sie nie rusza
     if min_avg>param.tolerance:
         min_xy=center_xy
     return min_xy
@@ -103,7 +94,7 @@ def searchcam(param):
     size=[len(img),len(img[0])]
     print("\nwymiary obrazu: ", size[0],size[1] )
 
-    #flip image, by nie yl lustrzany
+    #flip image, by nie byl lustrzany
     if param.flipped==True:
         img2=img
         for row in range(int(size[0]/2)):
@@ -126,9 +117,9 @@ def searchcam(param):
             pause2=False
 
         # dodanie lokacji najlepszego matchu do tablicy
-        latest_match2 = findclosestpix_part(param.value, img, latest_match, param.search_area)
+        latest_match = findclosestpix_part(param.value, img, latest_match, param.search_area)
         # strednia starego i nowego punktu, by ograniczyc wariactwa
-        latest_match = [int((latest_match[0] + latest_match2[0]) / 2),int((latest_match[1] + latest_match2[1]) / 2)]
+        #latest_match = [int((latest_match[0] + latest_match2[0]) / 2),int((latest_match[1] + latest_match2[1]) / 2)]
 
         #pola zmiany koloru
         colors = [(122, 122, 122),(255, 0, 0), (0, 255, 0), (0, 0, 255), (0, 255, 255)]
@@ -166,7 +157,7 @@ def searchcam(param):
         if 0 < latest_temp[0] < size[0]-25 and 0 < latest_temp[1] < size[1]-25:
             latest_match=latest_temp
 
-        #dodawanie nowejpozycji do tablicy
+        #dodawanie nowej pozycji do tablicy
         max_xy_tab.append([latest_match, param.draw_color])
         if len(max_xy_tab) > param.max_table_size:
             max_xy_tab.remove(max_xy_tab[0])
@@ -174,26 +165,28 @@ def searchcam(param):
         # rysowanie w zapisanych lokacjach
         if param.thickness > 1:
             for pnt in range(len(max_xy_tab)):
+                #obecny i poprzedni pnkt, do rysowania linii
                 point=max_xy_tab[pnt]
-                point2=point
+                point2=point.copy()
                 if pnt != 0:
                     point2=max_xy_tab[pnt-1]
-
+                # rysowanie linii
+                if point != point2:
+                    p1 = (int(point[0][1]) + j-param.thickness, int(point[0][0]) + i-param.thickness)
+                    p2 = (int(point2[0][1]) + j-param.thickness, int(point2[0][0]) + i-param.thickness)
+                    cv2.line(img, p2, p1, point[1], int(param.thickness / 2))
                 for i in range(param.thickness):
                     for j in range(param.thickness):
                         if 0 < point[0][0] + i < len(img) and 0 < point[0][1] + i < len(img[1]):
-                            if point != point2:
-                                p1=(int(point[0][1]) + j,int(point[0][0]) + i)
-                                p2=(int(point2[0][1]) + j,int(point2[0][0]) + i)
-                                cv2.line(img,p2, p1,point[1], int(param.thickness/2))
 
+                            #wyposrodkowanie rysowania grubosci
+                            x_val=int(point[0][0]) + i - int(param.thickness/2)
+                            y_val=int(point[0][1]) + j - int(param.thickness/2)
                             # obecny punkt jako przeciwienstwo zwyklego koloru
                             if (point == max_xy_tab[len(max_xy_tab) - 1]):
-                                img[int(point[0][0]) + i][int(point[0][1]) + j] = [255 - param.draw_color[0],
-                                                                                   255 - param.draw_color[1],
-                                                                                   255 - param.draw_color[2]]
+                                img[x_val][y_val] = [255 - param.draw_color[0],255 - param.draw_color[1],255 - param.draw_color[2]]
                             else:
-                                img[int(point[0][0]) + i][int(point[0][1]) + j] = point[1]
+                                img[x_val][y_val] = point[1]
 
         if pause == True:
             pause2 = True
@@ -215,12 +208,17 @@ def config(param):
     try:
         print("USTAWIENIA")
         choice = int(input(
-            "1 = ogolne, " + "2 = porzadany kolor, " + "3 = kolor rysowania. 4 = poleposzukiwan"))
+            "1 = grubosc linii, " + "2 = porzadany kolor, " + "3 = kolor rysowania. 4 = poleposzukiwan\n"
+                                                              "5 = maksymalna ilosc kolorowych pikseli, 6= poziom tolerancji szukania, 7= tryb flipped"))
 
         if(choice==1):
             param.thickness = int(input("podaj grubosc linii (def=" + str(param.thickness) + ")"))
+        if (choice == 5):
             param.max_table_size = int(input("podaj ilosc pixeli do rysowania (def=" + str(param.max_table_size) + ")"))
+        if (choice == 6):
             param.tolerance = int(input("podaj poziom tolerancji koloru (def=" + str(param.tolerance) + ")"))
+        if (choice == 7):
+            param.flipped = bool(input("tryb flipped ENTER=False (def=" + str(param.flipped) + ")"))
         if (choice == 2):
             print("podaj wartosci RGB porzadanego koloru (def=" + str(param.value) + ")")
             param.value[0] = int(input("B "))
@@ -249,15 +247,14 @@ if __name__ == "__main__":
         input("Przy ustawianiu kolorow pamietaj, ze przyjmuja one wartosci 0-255 w skalach Blue Green Red")
         input("SPACE = pauza, ustawianie parametrow na konsoli")
         input("WSAD = alternatywne poruszanie sie po palecie")
-        input("Po tej wiadomosci bedzie mozna ustalic pierwotne parametry\n")
+        input("Po tej wiadomosci bedzie mozna ustawic pierwotne parametry\n")
 
     ok=False
     while ok==False:
         try:
-            choice = int(input(
-                "0 = domyslne parametry, " + "1 = podaj kolor i grubosc, " + "2 = podaj dokladne parametry"))
+            choice = input("pozostale = domyslne parametry, " + "1 = podaj kolor i grubosc, " + "2 = podaj dokladne parametry")
 
-            if choice == 1:
+            if choice == "1":
                 print("podaj wartosci RGB porzadanego koloru ")
                 param.value[0] = int(input("B "))
                 param.value[1] = int(input("G "))
@@ -265,7 +262,7 @@ if __name__ == "__main__":
 
                 param.thickness = int(input("podaj grubosc linii (def="+str(param.thickness)+")"))
 
-            if choice == 2:
+            if choice == "2":
                 param.thickness = int(input("podaj grubosc linii (def="+str(param.thickness)+")"))
                 param.max_table_size = int(input("podaj ilosc pixeli do rysowania (def="+str(param.max_table_size)+")"))
                 param.tolerance = int(input("podaj poziom tolerancji koloru (def="+str(param.tolerance)+")"))

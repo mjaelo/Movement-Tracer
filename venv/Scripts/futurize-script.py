@@ -1,4 +1,4 @@
-#!C:\studia\sem6\PT\proj\venv\Scripts\python.exe
+#!C:\studia\sem6\PT\Tracer\venv\Scripts\python.exe
 # EASY-INSTALL-ENTRY-SCRIPT: 'future==0.18.2','console_scripts','futurize'
 __requires__ = 'future==0.18.2'
 import re

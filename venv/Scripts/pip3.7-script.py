@@ -1,4 +1,4 @@
-#!C:\studia\sem6\PT\proj\venv\Scripts\python.exe
+#!C:\studia\sem6\PT\Tracer\venv\Scripts\python.exe
 # EASY-INSTALL-ENTRY-SCRIPT: 'pip==19.0.3','console_scripts','pip3.7'
 __requires__ = 'pip==19.0.3'
 import re

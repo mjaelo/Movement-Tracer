@@ -1,4 +1,4 @@
-#!C:\studia\sem6\PT\proj\venv\Scripts\python.exe
+#!C:\studia\sem6\PT\Tracer\venv\Scripts\python.exe
 # EASY-INSTALL-ENTRY-SCRIPT: 'setuptools==40.8.0','console_scripts','easy_install'
 __requires__ = 'setuptools==40.8.0'
 import re

@@ -48,7 +48,7 @@ def findclosestpix_part(value, img, center_xy, area):
                 pozY = center_xy[0] - row_nr
             if pozY < 10:
                 pozY = 10
-                
+
             row = img[int(pozY)]
             for pixel_nr in range(area[1]):
 

@@ -157,7 +157,13 @@ def searchcam(param):
             latest_match=latest_temp
 
         #dodawanie nowej pozycji do tablicy
-        max_xy_tab.append([latest_match, param.draw_color])
+        exists=False
+        for xy_nr in range(max_xy_tab):
+            if xy_col[xy_nr][0]==latest_match:
+                max_xy_tab[xy_nr][1]=param.draw_color
+                exists=True
+        if exists==False:
+            max_xy_tab.append([latest_match, param.draw_color])
         if len(max_xy_tab) > param.max_table_size:
             max_xy_tab.remove(max_xy_tab[0])
 

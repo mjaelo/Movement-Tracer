@@ -158,12 +158,12 @@ def searchcam(param):
 
         #dodawanie nowej pozycji do tablicy
         exists=False
-        for xy_nr in range(max_xy_tab):
-            if xy_col[xy_nr][0]==latest_match:
-                max_xy_tab[xy_nr][1]=param.draw_color
+        for xy_nr in range(len(max_xy_tab)):
+            if max_xy_tab[xy_nr][0]==latest_match:
+                max_xy_tab[xy_nr][1]=param.draw_color.copy()
                 exists=True
         if exists==False:
-            max_xy_tab.append([latest_match, param.draw_color])
+            max_xy_tab.append([latest_match, param.draw_color.copy()])
         if len(max_xy_tab) > param.max_table_size:
             max_xy_tab.remove(max_xy_tab[0])
 
@@ -179,7 +179,7 @@ def searchcam(param):
                 if point != point2:
                     p1 = (int(point[0][1]) + j-param.thickness, int(point[0][0]) + i-param.thickness)
                     p2 = (int(point2[0][1]) + j-param.thickness, int(point2[0][0]) + i-param.thickness)
-                    cv2.line(img, p2, p1, point[1], int(param.thickness / 2))
+                    cv2.line(img, p2, p1, point[1], int(param.thickness))
                 for i in range(param.thickness):
                     for j in range(param.thickness):
                         if 0 < point[0][0] + i < len(img) and 0 < point[0][1] + i < len(img[1]):
@@ -239,7 +239,7 @@ def config(param):
             param.search_area[0] = int(input("X "))
             param.search_area[1] = int(input("Y "))
     except:
-        print("wrong iput")
+        print("wrong input")
 
 
 if __name__ == "__main__":
